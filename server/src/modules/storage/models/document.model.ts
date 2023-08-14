@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 
 const documentSchema = new mongoose.Schema(
   {
+    _id: {type: Schema.Types.ObjectId},
     created_by: {type: Schema.Types.ObjectId, ref: 'User'},
     name: {type: Schema.Types.String, default: 'Untitled Document'},
     content: {type: Schema.Types.String, default: ''},
