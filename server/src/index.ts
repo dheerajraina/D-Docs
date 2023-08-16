@@ -1,13 +1,36 @@
 import * as express from 'express';
 import {Request, Response} from 'express';
+import MongoConfig from './modules/storage/config/mongo.config';
+import {Route} from './utils/route.interface';
+import DocumentOperationRoutes from './modules/document_operations/routes/document_operations.routes';
 
-const app = express();
-const port = 3000;
+class App {
+  private app: express.Application;
+  private port: string | number;
+  private mongoConfig = new MongoConfig();
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!!');
-});
+  constructor(routes: Route[]) {
+    this.app = express();
+    this.app.use(express.json());
+    this.port = process.env.PORT || 3000;
+    this.initializeRoutes(routes);
+    this.connectToDatabase();
+    this.app.listen(this.port, () => {
+      console.log(`Express Server Listening At Port ${this.port}`);
+    });
+    this.app.get('/', (req: Request, res: Response) => {
+      res.send('Hello World!!');
+    });
+  }
 
-app.listen(port, () => {
-  return console.log(`Express Server Listening At Port ${port}`);
-});
+  connectToDatabase() {
+    this.mongoConfig.mongoConnect();
+  }
+  private initializeRoutes(routes: Route[]) {
+    routes.forEach(route => {
+      this.app.use('/', route.router);
+    });
+  }
+}
+
+new App([new DocumentOperationRoutes()]);
